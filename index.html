@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multi-line Chart with D3.js</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    /* CSS样式可以用来美化图表 */
+  </style>
+</head>
+<body>
+  <div id="charts"></div>
+
+  <script>
+    // 准备数据
+    const allData = [
+      { group: 'A', data: [
+        { year: 2010, value: 10 },
+        { year: 2011, value: 12 },
+        { year: 2012, value: 15 },
+        { year: 2013, value: 20 },
+        { year: 2014, value: 22 }
+      ]},
+      { group: 'B', data: [
+        { year: 2010, value: 15 },
+        { year: 2011, value: 18 },
+        { year: 2012, value: 20 },
+        { year: 2013, value: 25 },
+        { year: 2014, value: 28 }
+      ]},
+      { group: 'C', data: [
+        { year: 2010, value: 20 },
+        { year: 2011, value: 22 },
+        { year: 2012, value: 25 },
+        { year: 2013, value: 30 },
+        { year: 2014, value: 32 }
+      ]}
+      // Add more groups as needed
+    ];
+
+    // 创建SVG元素
+    const container = d3.select("#charts");
+
+    // 为每组数据创建一个独立的SVG元素
+    const charts = container.selectAll(".chart")
+                            .data(allData)
+                            .enter()
+                            .append("svg")
+                            .attr("class", "chart")
+                            .attr("width", 600)
+                            .attr("height", 400);
+
+    // 设置比例尺
+    const xScale = d3.scaleLinear()
+                     .domain([2010, 2014])
+                     .range([50, 550]);
+
+    const yScale = d3.scaleLinear()
+                     .domain([0, 35])
+                     .range([350, 50]);
+
+    // 添加折线
+    const line = d3.line()
+                   .x(d => xScale(d.year))
+                   .y(d => yScale(d.value));
+
+    charts.each(function(d, i) {
+      const svg = d3.select(this);
+
+      svg.append("path")
+         .attr("class", "line")
+         .attr("fill", "none")
+         .attr("stroke", ['red', 'orange', 'yellow'][i])
+         .attr("stroke-width", 2)
+         .attr("d", line(d.data));
+
+      // 添加轴线
+      const xAxis = d3.axisBottom(xScale);
+      const yAxis = d3.axisLeft(yScale);
+
+      svg.append("g")
+         .attr("transform", "translate(0, 350)")
+         .call(xAxis);
+
+      svg.append("g")
+         .attr("transform", "translate(50, 0)")
+         .call(yAxis);
+    });
+  </script>
+</body>
+</html>

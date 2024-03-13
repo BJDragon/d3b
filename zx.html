@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>线型图表</title>
+        <style type="text/css">
+            #container{
+                width: 500px;
+                height: 400px;
+                background: #ddd;
+            }
+            path{
+                fill: none;
+                stroke: #4682B4;
+                stroke-width: 1.5;
+            }
+            /* 设置y轴刻度线样式 */
+            .domain,.tick line{ 
+                stroke: gray;
+                stroke: #4682B4;
+                stroke-width: 1.5;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="container"></div>
+
+
+        <script type="text/javascript" src="http://d3js.org/d3.v3.js"></script>
+        <script type="text/javascript">
+            //定义变量
+            var width = 500
+            var height = 400
+            var margin = {left:50,top:30,right:20,bottom:20}
+            var g_width = width - margin.left-margin.right
+            var g_height = height - margin.top - margin.bottom
+            
+            var svg = d3.select('#container') // 选择容器元素,
+                .append('svg')   //并向其内添加一个svg元素。
+                .attr('width',width) //设置宽高
+                .attr('height',height)
+                
+            // 向svg中添加g元素
+            var g = d3.select('svg')
+                .append('g')   //向svg中添加一个g元素
+                .attr('transform','translate('+margin.left+','+margin.top+')')  //为g元素设置一个偏移量
+                
+            // 定义line的x轴坐标数据
+            var data = [0,2,5,8,9,4,3,7,6,8,11]
+            
+            // 对图形line进行x，y轴缩放控制
+            var scaleX = d3.scale.linear()
+                    .domain([0,data.length-1]) //定义输入的范围
+                    .range([0,g_width])  //定义输出的范围
+            var scaleY = d3.scale.linear()
+                    .domain([0,d3.max(data)]) //定义输入的范围
+                    .range([g_height,0])  //定义输出的范围,调换x,y坐标位置。
+            
+            
+            // 生成line的数据
+            var createLinePath = d3.svg.line()
+                    .x(function(d,i){ return scaleX(i) }) //对x轴进行缩放
+                    .y(function(d){return scaleY(d)})  //对y轴进行缩放
+                    .interpolate('cardinal') //让line变得圆滑
+                    
+            //绘制曲线
+            d3.select('g')
+                .append('path')  //向g元素中添加一个path路径元素
+                .attr('d',createLinePath(data)) //为g元素添加一个path-data属性d，为其定义一个函数，用来生成line的数据
+                .attr('fill','none') //为path元素进行样式设置
+                .attr('stroke','#4682B4')
+                .attr('stroke-width',1.5)
+            
+            // 坐标系绘制
+            var axisX = d3.svg.axis().scale(scaleX)
+            var axisY = d3.svg.axis().scale(scaleY).orient('left')
+                g.append('g')
+                    .call(axisX)
+                    .attr('transform','translate(0,'+g_height+')') //向下平移x轴
+                g.append('g')
+                    .call(axisY)
+                    .append('text')  //y轴添加文本标签
+                    .text('Price($)') //为标签设置文本内容
+                    .attr('transform','rotate(-90)')//逆时针旋转90度
+                    .attr('text-anchor','end') //文本末尾对其
+                    .attr('dy','1rem') //沿y轴向右平移
+                
+        </script>
+    </body>
+</html>
+————————————————
+
+                            版权声明：本文为博主原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接和本声明。
+                        
+原文链接：https://blog.csdn.net/xinxiaoyonng/article/details/106609141

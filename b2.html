@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multi-line Charts with D3.js</title>
+  <!-- 引入 D3.js 库 -->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    /* CSS样式可以用来美化图表 */
+    svg {
+      margin: 10px; /* 给每个 SVG 元素添加外边距 */
+      border: 1px solid #ccc; /* 添加边框 */
+    }
+  </style>
+</head>
+<body>
+  <div id="charts"></div> <!-- 定义一个容器用于包含所有的折线图 -->
+  
+  <script>
+    // 准备数据生成函数，用于生成随机数据
+    const generateData = () => {
+      const data = [];
+      // 生成5组数据，每组数据包含5个年份（2010-2014）的随机值
+      for (let i = 0; i < 5; i++) {
+        // 生成 A-E 组的标签
+        const group = String.fromCharCode(65 + i);
+        const groupData = [];
+        // 生成每个年份的随机值
+        for (let j = 2010; j <= 2014; j++) {
+          groupData.push({ year: j, value: Math.floor(Math.random() * 30) });
+        }
+        // 将每组数据存入 data 数组中
+        data.push({ group, data: groupData });
+      }
+      return data;
+    };
+
+    // 创建 SVG 元素的宽度和高度
+    const svgWidth = 300;
+    const svgHeight = 200;
+    // 定义要生成的折线图数量
+    const numCharts = 10;
+    // 选择包含所有折线图的容器
+    const chartsContainer = d3.select("#charts");
+
+    // 循环生成并绘制每个折线图
+    for (let i = 0; i < numCharts; i++) {
+      // 生成随机数据
+      const data = generateData();
+      // 创建一个 SVG 元素
+      const svg = chartsContainer.append("svg")
+                                  .attr("width", svgWidth)
+                                  .attr("height", svgHeight);
+
+      // 创建 X 轴和 Y 轴的比例尺
+      const xScale = d3.scaleLinear()
+                       .domain([2010, 2014]) // 设置 X 轴的数据范围
+                       .range([20, svgWidth - 20]); // 设置 X 轴的像素范围
+
+      const yScale = d3.scaleLinear()
+                       .domain([0, 30]) // 设置 Y 轴的数据范围
+                       .range([svgHeight - 20, 20]); // 设置 Y 轴的像素范围
+
+      // 创建折线生成器
+      const line = d3.line()
+                     .x(d => xScale(d.year)) // X 坐标映射
+                     .y(d => yScale(d.value)); // Y 坐标映射
+
+      // 绘制每组数据的折线
+      svg.selectAll(".line")
+         .data(data) // 绑定数据
+         .enter()
+         .append("path") // 添加路径元素
+         .attr("class", "line") // 添加 CSS 类
+         .attr("fill", "none") // 设置填充为无
+         .attr("stroke", (d, i) => d3.schemeCategory10[i]) // 设置折线颜色
+         .attr("stroke-width", 2) // 设置折线宽度
+         .attr("d", d => line(d.data)); // 使用折线生成器绘制路径
+
+      // 创建并添加 X 轴和 Y 轴
+      const xAxis = d3.axisBottom(xScale); // 创建 X 轴
+      const yAxis = d3.axisLeft(yScale); // 创建 Y 轴
+
+      svg.append("g")
+         .attr("transform", `translate(0, ${svgHeight - 20})`) // 设置 X 轴的位置
+         .call(xAxis); // 添加 X 轴
+
+      svg.append("g")
+         .attr("transform", "translate(20, 0)") // 设置 Y 轴的位置
+         .call(yAxis); // 添加 Y 轴
+    }
+  </script>
+</body>
+</html>

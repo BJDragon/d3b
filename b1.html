@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multi-line Charts with D3.js</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    /* CSS样式可以用来美化图表 */
+    svg {
+      margin: 10px;
+      /* border: 1px solid #ccc; */
+    }
+  </style>
+</head>
+<body>
+  <div id="charts">
+    <h1>section-1</h1>
+  </div>
+
+  <script>
+    // 准备数据
+    const generateData = () => {
+      const data = [];
+      for (let i = 0; i < 5; i++) {
+        const group = String.fromCharCode(65 + i);
+        const groupData = [];
+        for (let j = 2010; j <= 2014; j++) {
+          groupData.push({ year: j, value: Math.floor(Math.random() * 30) });
+        }
+        data.push({ group, data: groupData });
+      }
+      return data;
+    };
+
+    // 创建SVG元素
+    const svgWidth = 300;
+    const svgHeight = 200;
+    const numCharts = 10;
+    const chartsContainer = d3.select("#charts");
+
+    // 生成并绘制折线图
+    for (let i = 0; i < numCharts; i++) {
+      const data = generateData();
+      const svg = chartsContainer.append("svg")
+                                  .attr("width", svgWidth)
+                                  .attr("height", svgHeight);
+
+      const xScale = d3.scaleLinear()
+                       .domain([2010, 2014])
+                       .range([20, svgWidth - 20]);
+
+      const yScale = d3.scaleLinear()
+                       .domain([0, 30])
+                       .range([svgHeight - 20, 20]);
+
+      const line = d3.line()
+                     .x(d => xScale(d.year))
+                     .y(d => yScale(d.value));
+
+      svg.selectAll(".line")
+         .data(data)
+         .enter()
+         .append("path")
+         .attr("class", "line")
+         .attr("fill", "none")
+         .attr("stroke", (d, i) => d3.schemeCategory10[i])
+         .attr("stroke-width", 2)
+         .attr("d", d => line(d.data));
+
+      const xAxis = d3.axisBottom(xScale);
+      const yAxis = d3.axisLeft(yScale);
+
+      svg.append("g")
+         .attr("transform", `translate(0, ${svgHeight - 20})`)
+         .call(xAxis);
+
+      svg.append("g")
+         .attr("transform", "translate(20, 0)")
+         .call(yAxis);
+    }
+  </script>
+</body>
+</html>
